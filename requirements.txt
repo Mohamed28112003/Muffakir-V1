@@ -1,0 +1,16 @@
+transformers
+langchain
+langchain-community
+unstructured[pdf]
+chromadb
+sentence-transformers
+rank-bm25
+nltk
+openai
+groq
+langchain-groq
+gradio
+tiktoken
+fastembed
+langchain-chroma
+streamlit
