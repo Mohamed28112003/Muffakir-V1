@@ -2,3 +2,6 @@ DB_FINAL.zip
 research
 DB_FINAL
 __pycache__
+QueryClassifier.py
+Main.py
+.gitignore

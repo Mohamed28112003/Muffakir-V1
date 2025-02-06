@@ -1,12 +1,6 @@
 from typing import Tuple
 
 class QueryClassifier:
-    """
-    Classifies a transformed query into one of three categories:
-    - 'vector_db': Exists in the vector database.
-    - 'web_search': Requires a web search.
-    - 'dummy_query': Casual or irrelevant question.
-    """
 
     def __init__(self, vector_retriever, tavily_agent, llm_provider, prompt_manager):
         self.vector_retriever = vector_retriever
@@ -15,16 +9,7 @@ class QueryClassifier:
         self.classification_prompt = prompt_manager.get_prompt("query_classification")
 
     def classify_query(self, query_transformed: str) -> Tuple[str, str]:
-        """
-        Classifies the query and returns the category and explanation.
 
-        Args:
-            query_transformed (str): The transformed query.
-
-        Returns:
-            Tuple[str, str]: Category and explanation.
-        """
-        # Check if the query exists in the vector database
         if self.vector_retriever.query_exists(query_transformed):
             return "vector_db", "Query matches content in the vector database."
 
