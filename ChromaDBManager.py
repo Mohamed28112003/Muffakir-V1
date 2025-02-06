@@ -32,6 +32,7 @@ class ChromaDBManager:
     def similarity_search(self, query: str, k: int = 2) -> List[Document]:
 
         return self.vector_store.similarity_search(query, k)
+    
     def max_marginal_relevance_search(self, query: str, k: int = 2 ,fetch_k:int=12) -> List[Document]:
         return self.vector_store.max_marginal_relevance_search(query, k,fetch_k)
 

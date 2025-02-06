@@ -9,7 +9,7 @@ from PromptManager import *
 from ChromaDBManager import *
 from RetrieveMethods import  *
 
-
+from Reranker import *
 
 class RAGPipelineManager:
     """
@@ -24,8 +24,9 @@ class RAGPipelineManager:
         llm_provider: Optional[LLMProvider] = None,
         prompt_manager: Optional[PromptManager] = None,
         k: int = 2 ,
-        fetch_k: int = 12,
-        retrive_method: str = "max_marginal_relevance_search"
+        fetch_k: int = 7,
+        retrive_method: str = "max_marginal_relevance_search",
+         reranker: Optional[Reranker] = None,
     ):
 
         self.db_manager = ChromaDBManager(
@@ -36,16 +37,19 @@ class RAGPipelineManager:
         from RAGGenerationPipeline import RAGGenerationPipeline
 
         self.query_transformer = query_transformer
+        
         self.generation_pipeline = RAGGenerationPipeline(
             pipeline_manager=self,
             llm_provider=llm_provider,
-            prompt_manager=prompt_manager
+            prompt_manager=prompt_manager,
+            reranker=reranker
         )
         self.k = k
         self.fetch_k = fetch_k
         self.retrive_method = retrive_method
         self.retriever = RetrieveMethods(self.db_manager.vector_store)
         self.llm_provider = llm_provider
+        self.reranker = reranker
 
 
 
@@ -55,7 +59,13 @@ class RAGPipelineManager:
 
     def query_similar_documents(self, query: str, k: Optional[int] = None) -> Dict[str, Any]:
         ## Optional
-        query = self.query_transformer.transform_query(query)
+        #query = self.query_transformer.transform_query(query)
+        ## class = query_classfication(query)
+
+        ## dummy llm
+        ## vb 
+        ## (agent)
+ 
         if self.retrive_method == "max_marginal_relevance_search":
             return self.retriever.max_marginal_relevance_search(query,self.k,self.fetch_k)
 

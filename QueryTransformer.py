@@ -15,7 +15,7 @@ class QueryTransformer:
 
         try:
             llm = self.llm_provider.get_llm()
-            prompt = self.query_rewrite_prompt.format(original_query=original_query)
+            prompt = self.query_rewrite_prompt.format(original_query=original_query) ## propt
             response = llm.invoke(prompt)
 
             if hasattr(response, 'content'):

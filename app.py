@@ -1,4 +1,5 @@
 import streamlit as st
+import os
 from langchain.document_loaders import DirectoryLoader
 from AnswerGenerator import *
 from ChromaDBManager import *
@@ -13,7 +14,9 @@ from RAGPipelineManager import *
 from RetrieveMethods import *
 from SummaryChunker import *
 from TextProcessor import *
-from api_keys import api_keys
+from api_keys import api_keys_qroq,api_keys_together
+from Reranker import *
+from CrewAgents import *  # Import your agent class
 
 # Set page configuration with dark theme
 st.set_page_config(
@@ -106,23 +109,48 @@ if 'chat_history' not in st.session_state:
 
 def initialize_rag_manager():
     """Initialize the RAG pipeline manager with all necessary components"""
+    
     embedding_model_name = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
-    llm_provider = LLMProvider(api_keys=api_keys, model="llama-3.3-70b-versatile")
+    llm_provider = LLMProvider(provider_name="together",temperature=0,api_keys=api_keys_together, model="meta-llama/Llama-3.3-70B-Instruct-Turbo")
     prompt_manager = PromptManager()
     text_processor = TextProcessor()
     query_generator = QueryGenerator(llm_provider, prompt_manager)
     summary_chunker = SummaryChunker(llm_provider, prompt_manager)
     query_transformer = QueryTransformer(llm_provider, prompt_manager)
-    
+    embedding_model = EmbeddingProvider() 
+
+    reranker = Reranker(reranking_method='cross_encoder', cross_encoder_model_name='NAMAA-Space/GATE-Reranker-V1')
+
+
     return RAGPipelineManager(
-        db_path="D:\Graduation Project\Local\DB_FINAL\content\DB_FINAL",
+        db_path="D:\Graduation Project\Local\DB_FINAL",
         model_name=embedding_model_name,
         query_transformer=query_transformer,
         llm_provider=llm_provider,
         prompt_manager=prompt_manager,
-        k=3,
-        retrive_method="contextual"
+        k=5,
+        retrive_method="hybrid",
+        reranker=reranker
     )
+
+def run_legal_research(query: str) -> str:
+    try:
+        crew = CrewAgents(
+            user_query=query,
+            country="Egypt",
+            language="Arabic",
+            output_dir="./research"
+        )
+        crew.setup()
+        crew.run()
+        
+        # Read the generated answer
+        answer_path = os.path.join("./research", "answer.txt")
+        with open(answer_path, 'r', encoding='utf-8') as f:
+            return f.read()
+            
+    except Exception as e:
+        return f"⚠️ Research failed: {str(e)}"
 
 # Main title with custom styling
 st.markdown("<h1 style='text-align: center; color: #FFFFFF;'> Muffakir 🤖</h1>", unsafe_allow_html=True)
@@ -151,30 +179,46 @@ with st.container():
                         st.markdown(f'<div class="metadata">📚 Source Metadata:<br>{metadata}</div>', unsafe_allow_html=True)
             st.markdown("---")
 
-# User input
+# User input and buttons
 user_input = st.text_area("Ask your legal question:", height=100, key="user_input")
-submit_button = st.button("Submit Question")
+col1, col2 = st.columns(2)
+with col1:
+    submit_button = st.button("📤 Submit Question")
+with col2:
+    search_button = st.button("🔍 Search Legal Sources")
 
-# Process user input
-if submit_button and user_input:
-    # Add user message to chat history
+# Handle Search button click
+if search_button and user_input:
     st.session_state.chat_history.append({"role": "user", "content": user_input})
     
-    # Show loading spinner while processing
+    with st.spinner("🔍 Searching Google"):
+        try:
+            search_results = run_legal_research(user_input)
+            
+            st.session_state.chat_history.append({
+                "role": "assistant",
+                "answer": f"{search_results}",
+
+            })
+            st.rerun()
+            
+        except Exception as e:
+            st.error(f"Research error: {str(e)}")
+
+# Handle Submit button click (keep existing RAG functionality)
+if submit_button and user_input:
+    st.session_state.chat_history.append({"role": "user", "content": user_input})
+    
     with st.spinner("Generating answer..."):
         try:
-            # Generate response
             response = rag_manager.generate_answer(user_input)
             
-            # Add bot response to chat history
             st.session_state.chat_history.append({
                 "role": "assistant",
                 "answer": response["answer"],
                 "sources": response["retrieved_documents"],
                 "book": response["source_metadata"]
             })
-            
-            # Rerun to update the display
             st.rerun()
             
         except Exception as e:

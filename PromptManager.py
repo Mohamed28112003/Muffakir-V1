@@ -5,6 +5,20 @@ class PromptManager:
     def __init__(self):
 
         self.prompts = {
+
+
+
+            "query_classification_prompt":
+
+            '''
+السؤال: {query_transformed}
+التصنيفات:
+1. السؤال موجود في قاعدة البيانات (vector_db).
+2. السؤال يحتاج إلى بحث على الإنترنت (web_search).
+3. السؤال غير قانوني أو سؤال عام مثل "كيف حالك؟" (dummy_query).
+اختر الفئة الأنسب.
+
+''',
             "query_rewrite": """
             You are an AI assistant specialized in enhancing user queries for retrieval-augmented generation (RAG) systems.
             Your task is to take the original, potentially vague or broad user query and reformulate it into a more specific,
@@ -49,7 +63,7 @@ class PromptManager:
     "١. الإجابة يجب أن تكون باللغة العربية فقط",
  "   ٢. استخدام المعلومات من السياق المقدم حصريًا",
 "    ٣. إذا كان السؤال غير مرتبط بالسياق، اذكر  إجابة",
-"اذا لا يوجد اجابه في السياق اكتب لا يممكني الاجابه علي هذا السؤال فقط ",
+"اذا لا يوجد اجابه في السياق اكتب لا يممكني الاجابه علي هذا السؤال ",
     "[الإجابة]:",
     
             ]),

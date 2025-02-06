@@ -48,6 +48,8 @@ legal-assistant-chatbot/
 ├── RetrieveMethods.py       # Retrieval methods module
 ├── SummaryChunker.py        # Text chunking module
 └── TextProcessor.py         # Text processing module
+└── Reranker.py              # Reranker module
+
 ```
 
 ## Configuration
