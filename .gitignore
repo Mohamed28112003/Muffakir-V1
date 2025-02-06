@@ -4,4 +4,3 @@ DB_FINAL
 __pycache__
 QueryClassifier.py
 Main.py
-.gitignore
