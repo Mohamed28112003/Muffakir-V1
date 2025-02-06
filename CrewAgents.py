@@ -20,15 +20,32 @@ llm = LLM(
 
 @tool
 def search_engine_tool(query: str) -> str:
+    """
+    Perform a web search using the Tavily API and return the search context.
 
+    Args:
+        query (str): The search query string.
+
+    Returns:
+        str: The search context retrieved from the Tavily API.
+    """
     client = TavilyClient(api_key=TAVILY_API_KEY)
     return client.get_search_context(query)
 
 @tool
 def read_context_file(file_path: str) -> str:
+    """
+    Read the content of a text file and return it as a string.
 
+    Args:
+        file_path (str): The path to the file to be read.
+
+    Returns:
+        str: The content of the file as a string.
+    """
     with open(file_path, 'r', encoding='utf-8') as file:
         return file.read()
+
 
 class CrewAgents:
     def __init__(self, user_query: str, country: str, language: str, output_dir: str = "./output"):
@@ -114,7 +131,6 @@ class CrewAgents:
 
     def run(self) -> str:
         return self.crew.kickoff()
-
 
 
 
