@@ -1,17 +1,13 @@
-
-
-
 from typing import Tuple, List, Dict, Optional, Any
 from LLMProvider import *
-
 from PromptManager import *
-
 from Reranker import *  
 from RAGPipelineManager import RAGPipelineManager
 from DocumentRetriever import *
 from AnswerGenerator import *
-
-
+from QueryDocumentProcessor import *
+from CrewAgents import CrewAgents
+from HallucinationsCheck import *
 
 class RAGGenerationPipeline:
     """Main class for handling the complete RAG generation pipeline with reranking"""
@@ -21,37 +17,94 @@ class RAGGenerationPipeline:
         pipeline_manager: RAGPipelineManager,
         llm_provider: LLMProvider,
         prompt_manager: PromptManager,
+        query_processor: QueryDocumentProcessor,
+        hallucination : HallucinationsCheck,
+        crewagent: CrewAgents,  # Web search agent
         reranker: Optional[Reranker] = None,
         k: int = 7
     ):
+        self.pipeline_manager = pipeline_manager
+        self.llm_provider = llm_provider
+        self.query_processor = query_processor  # Use query_processor instance
+        self.crewagent = crewagent
         self.retriever = DocumentRetriever(pipeline_manager)
         self.generator = AnswerGenerator(llm_provider, prompt_manager)
         self.reranker = reranker or Reranker()  # Default reranker if not provided
+        self.hallucination = hallucination
         self.k = k
 
     def generate_response(self, query: str) -> Dict[str, Any]:
         """
-        Generate a response for a given query using the RAG pipeline with optional reranking
+        Generate a response for a given query using the classification system.
 
         Returns:
-            Dict containing the generated answer and retrieval metadata
+            Dict containing the generated answer and retrieval metadata.
         """
 
-        
-        # Retrieve relevant documents
-        retrieval_result = self.retriever.retrieve_documents(query, self.k)
+        # Step 1: Classify the query
+        query_type = self.query_processor.classify_query(query)
 
-        # Format documents
-        formatted_documents = self.retriever.format_documents(retrieval_result)
+        if query_type == "dummy_query":
+            llm = self.llm_provider.get_llm()
+            print("DUMMYYYY !!!!!!!!")
+            answer = llm.invoke(query)
 
-        # Rerank documents
-        reranked_documents = self.reranker.rerank(query, formatted_documents)
+            # Directly answer with LLM
+            return {
+                "answer": answer.content,
+                "retrieved_documents": [],
+                "source_metadata": [],
+            }
 
-        # Generate answer using reranked documents
-        answer = self.generator.generate_answer(query, reranked_documents)
+        elif query_type == "vector_db":
+            # Retrieve documents from ChromaDB
+            retrieval_result = self.retriever.retrieve_documents(query, self.k)
+            formatted_documents = self.retriever.format_documents(retrieval_result)
 
-        return {
-            "answer": answer,
-            "retrieved_documents": [doc.page_content for doc in reranked_documents],
-            "source_metadata": [doc.metadata for doc in reranked_documents],
-        }
+            # Grade the retrieved documents
+           # graded_documents = self.query_processor.grade_documents(formatted_documents, query)
+
+           
+                # Rerank documents
+            reranked_documents = self.reranker.rerank(query, formatted_documents)
+
+                # Generate answer using reranked documents
+            answer = self.generator.generate_answer(query, reranked_documents)
+            if answer in "لا يمكنني الإجابة على هذا السؤال":
+                return  {
+                "answer": llm.invoke(query),
+                "retrieved_documents": [],
+                "source_metadata": [],
+            }
+
+            return {
+                    "answer": answer,
+                    "retrieved_documents": [doc.page_content for doc in reranked_documents],
+                    "source_metadata": [doc.metadata for doc in reranked_documents],
+                }
+        elif query_type == "web_search":
+                self.crewagent.user_query = query  
+
+                self.crewagent.setup()
+                self.crewagent.run()
+
+                answer_path = os.path.join("./research", "answer.txt")
+                with open(answer_path, 'r', encoding='utf-8') as f:
+                    answer = f.read()
+                
+
+                answer = self.hallucination.check_answer(answer) 
+
+
+
+                # If retrieval fails, use web search
+                return {
+                    "answer": answer,
+                    "retrieved_documents": [],
+                    "source_metadata": [],
+                }
+
+
+
+        else:
+            raise ValueError(f"Unknown query type: {query_type}")

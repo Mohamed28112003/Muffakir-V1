@@ -3,3 +3,4 @@ research
 DB_FINAL
 __pycache__
 test.py
+.gitignore

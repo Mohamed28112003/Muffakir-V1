@@ -14,9 +14,10 @@ from RAGPipelineManager import *
 from RetrieveMethods import *
 from SummaryChunker import *
 from TextProcessor import *
-from api_keys import api_keys_qroq,api_keys_together
+from api_keys import api_keys_qroq, api_keys_together
 from Reranker import *
 from CrewAgents import *  # Import your agent class
+from HallucinationsCheck import HallucinationsCheck
 
 # Set page configuration with dark theme
 st.set_page_config(
@@ -108,19 +109,32 @@ if 'chat_history' not in st.session_state:
     st.session_state.chat_history = []
 
 def initialize_rag_manager():
-    """Initialize the RAG pipeline manager with all necessary components"""
+    """Initialize the RAG pipeline manager with all necessary components."""
     
     embedding_model_name = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
-    llm_provider = LLMProvider(provider_name="together",temperature=0,api_keys=api_keys_together, model="meta-llama/Llama-3.3-70B-Instruct-Turbo")
+    llm_provider = LLMProvider(
+        provider_name="together",
+        temperature=0,
+        api_keys=api_keys_together,
+        model="meta-llama/Llama-3.3-70B-Instruct-Turbo"
+    )
     prompt_manager = PromptManager()
     text_processor = TextProcessor()
     query_generator = QueryGenerator(llm_provider, prompt_manager)
     summary_chunker = SummaryChunker(llm_provider, prompt_manager)
     query_transformer = QueryTransformer(llm_provider, prompt_manager)
-    embedding_model = EmbeddingProvider() 
+    embedding_model = EmbeddingProvider()
+    query_processor = QueryDocumentProcessor(llm_provider,prompt_manager)
+    hallucination = HallucinationsCheck(llm_provider,prompt_manager)
+    crewagent =  CrewAgents(user_query="query",
+            country="Egypt",
+            language="Arabic",
+            output_dir="./research")
 
-    reranker = Reranker(reranking_method='cross_encoder', cross_encoder_model_name='NAMAA-Space/GATE-Reranker-V1')
-
+    reranker = Reranker(
+        reranking_method='cross_encoder',
+        cross_encoder_model_name='NAMAA-Space/GATE-Reranker-V1'
+    )
 
     return RAGPipelineManager(
         db_path="D:\Graduation Project\Local\DB_FINAL",
@@ -130,7 +144,10 @@ def initialize_rag_manager():
         prompt_manager=prompt_manager,
         k=5,
         retrive_method="hybrid",
-        reranker=reranker
+        reranker=reranker,
+        query_processor=query_processor,
+        crewagent=crewagent,
+        hallucination=hallucination
     )
 
 def run_legal_research(query: str) -> str:
@@ -144,14 +161,25 @@ def run_legal_research(query: str) -> str:
         crew.setup()
         crew.run()
         
-        # Read the generated answer
+        # Read the generated answer from the search agent
         answer_path = os.path.join("./research", "answer.txt")
         with open(answer_path, 'r', encoding='utf-8') as f:
             return f.read()
-            
     except Exception as e:
         return f"⚠️ Research failed: {str(e)}"
 
+# Main title with custom styling
+st.markdown("<h1 style='text-align: center; color: #FFFFFF;'>Muffakir 🤖</h1>", unsafe_allow_html=True)
+st.markdown("---")
+
+# Initialize RAG manager
+@st.cache_resource
+def get_rag_manager():
+    return initialize_rag_manager()
+
+rag_manager = get_rag_manager()
+
+# Chat interface: display messages from chat_history
 # Main title with custom styling
 st.markdown("<h1 style='text-align: center; color: #FFFFFF;'> Muffakir 🤖</h1>", unsafe_allow_html=True)
 st.markdown("---")

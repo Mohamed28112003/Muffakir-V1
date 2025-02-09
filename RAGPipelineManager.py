@@ -8,7 +8,9 @@ from PromptManager import *
 
 from ChromaDBManager import *
 from RetrieveMethods import  *
-
+from CrewAgents import *
+from QueryDocumentProcessor import *
+ 
 from Reranker import *
 
 class RAGPipelineManager:
@@ -26,7 +28,11 @@ class RAGPipelineManager:
         k: int = 2 ,
         fetch_k: int = 7,
         retrive_method: str = "max_marginal_relevance_search",
-         reranker: Optional[Reranker] = None,
+        reranker: Optional[Reranker] = None,
+        query_processor:Optional[ QueryDocumentProcessor]=None,
+        hallucination : Optional[HallucinationsCheck]=None,
+        crewagent: Optional[CrewAgents]=None,  # Web search agent
+         
     ):
 
         self.db_manager = ChromaDBManager(
@@ -42,7 +48,11 @@ class RAGPipelineManager:
             pipeline_manager=self,
             llm_provider=llm_provider,
             prompt_manager=prompt_manager,
-            reranker=reranker
+            reranker=reranker,
+            crewagent=crewagent,
+            hallucination=hallucination,
+            query_processor=query_processor 
+
         )
         self.k = k
         self.fetch_k = fetch_k
@@ -84,6 +94,7 @@ class RAGPipelineManager:
 
 
     def generate_answer(self, query: str) -> Dict[str, Any]:
+        print("HELLO !!!!!!!!!!!!!!!!")
         return self.generation_pipeline.generate_response(query)
 
 
