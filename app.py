@@ -143,7 +143,7 @@ def initialize_rag_manager():
         llm_provider=llm_provider,
         prompt_manager=prompt_manager,
         k=5,
-        retrive_method="hybrid",
+        retrive_method="agentic",
         reranker=reranker,
         query_processor=query_processor,
         crewagent=crewagent,

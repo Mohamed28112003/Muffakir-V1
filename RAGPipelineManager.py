@@ -60,6 +60,7 @@ class RAGPipelineManager:
         self.retriever = RetrieveMethods(self.db_manager.vector_store)
         self.llm_provider = llm_provider
         self.reranker = reranker
+        self.db_path=db_path
 
 
 
@@ -89,12 +90,15 @@ class RAGPipelineManager:
         elif self.retrive_method =="contextual":
 
             return self.retriever.ContextualRAG(llm_provider= self.llm_provider,query=query)
+
         else:
             raise ValueError(f"Unknown retrive_method: {self.retrive_method}")
 
 
     def generate_answer(self, query: str) -> Dict[str, Any]:
         print("HELLO !!!!!!!!!!!!!!!!")
-        return self.generation_pipeline.generate_response(query)
+
+
+        return self.generation_pipeline.generate_response(query,type=self.retrive_method)
 
 

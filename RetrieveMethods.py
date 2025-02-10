@@ -5,7 +5,7 @@ from langchain.retrievers import BM25Retriever
 from langchain.retrievers import EnsembleRetriever
 from langchain.retrievers import ContextualCompressionRetriever
 from langchain.retrievers.document_compressors import LLMChainExtractor
-
+from AgenticRAG import *
 from LLMProvider import *
 
 class RetrieveMethods:
@@ -50,6 +50,19 @@ class RetrieveMethods:
         )
 
         return compression_retriever.get_relevant_documents(query)
+    
+    # def AgenticRAG(self,query:str ,top_k: int = 5)-> List[Document]:
+    #     db_path = "D:\Graduation Project\Local\DB_FINAL"
+
+    #     agent = AgenticRag(db_path=db_path,k=top_k)
+    #     response = agent.run_query(query)
+    #     return response
+
+
+        
+
+
+
 
 
 

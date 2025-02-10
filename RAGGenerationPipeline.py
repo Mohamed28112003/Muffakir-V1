@@ -19,13 +19,13 @@ class RAGGenerationPipeline:
         prompt_manager: PromptManager,
         query_processor: QueryDocumentProcessor,
         hallucination : HallucinationsCheck,
-        crewagent: CrewAgents,  # Web search agent
+        crewagent: CrewAgents, 
         reranker: Optional[Reranker] = None,
         k: int = 7
     ):
         self.pipeline_manager = pipeline_manager
         self.llm_provider = llm_provider
-        self.query_processor = query_processor  # Use query_processor instance
+        self.query_processor = query_processor  
         self.crewagent = crewagent
         self.retriever = DocumentRetriever(pipeline_manager)
         self.generator = AnswerGenerator(llm_provider, prompt_manager)
@@ -33,7 +33,7 @@ class RAGGenerationPipeline:
         self.hallucination = hallucination
         self.k = k
 
-    def generate_response(self, query: str) -> Dict[str, Any]:
+    def generate_response(self, query: str,type:str) -> Dict[str, Any]:
         """
         Generate a response for a given query using the classification system.
 
@@ -43,6 +43,7 @@ class RAGGenerationPipeline:
 
         # Step 1: Classify the query
         query_type = self.query_processor.classify_query(query)
+        db_path= self.pipeline_manager.db_path
 
         if query_type == "dummy_query":
             llm = self.llm_provider.get_llm()
@@ -58,8 +59,27 @@ class RAGGenerationPipeline:
 
         elif query_type == "vector_db":
             # Retrieve documents from ChromaDB
+            if (type=="agentic"):
+               # db_path = "D:\Graduation Project\Local\DB_FINAL"
+
+                agent = AgenticRag(db_path=db_path)
+                response = agent.run_query(query)
+                
+
+                return {
+                    "answer": response['response'],
+                    "retrieved_documents": [doc.page_content for doc in response['retrieved_docs']],
+                    "source_metadata": [doc.metadata for doc in response['retrieved_docs']],
+                }
+
+
+
+
             retrieval_result = self.retriever.retrieve_documents(query, self.k)
             formatted_documents = self.retriever.format_documents(retrieval_result)
+
+
+
 
             # Grade the retrieved documents
            # graded_documents = self.query_processor.grade_documents(formatted_documents, query)
@@ -70,6 +90,7 @@ class RAGGenerationPipeline:
 
                 # Generate answer using reranked documents
             answer = self.generator.generate_answer(query, reranked_documents)
+
             if answer in "لا يمكنني الإجابة على هذا السؤال":
                 return  {
                 "answer": llm.invoke(query),
