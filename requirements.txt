@@ -17,3 +17,4 @@ streamlit
 crewai
 tavily-python
 langchain_openai
+streamlit_chat

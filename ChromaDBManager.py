@@ -5,7 +5,7 @@ from typing import Tuple, List, Dict, Optional, Any
 
 class ChromaDBManager:
     def __init__(self, path: str, collection_name: str = 'Book',
-                 model_name: str = 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2'):
+                 model_name: str = "mohamed2811/Muffakir_Embedding"):
         """
         Initialize ChromaDBManager with LangChain's Chroma vector store.
         """

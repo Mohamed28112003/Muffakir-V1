@@ -1,6 +1,8 @@
-DB_FINAL.zip 
+DB.zip 
 research
-DB_FINAL
-__pycache__
+SummaryChunker.py
+RAGEvaluator.py
+DB
 test.py
-.gitignore
+__pycache__
+

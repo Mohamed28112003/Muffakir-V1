@@ -3,6 +3,7 @@ from typing import Tuple, List, Dict, Optional, Any
 from QueryTransformer import *
 from LLMProvider import *
 from langchain.schema import Document
+from langchain.memory import ConversationBufferMemory
 
 from PromptManager import *
 
@@ -10,40 +11,47 @@ from ChromaDBManager import *
 from RetrieveMethods import  *
 from CrewAgents import *
 from QueryDocumentProcessor import *
- 
+
 from Reranker import *
 
+
+from typing import Tuple, List, Dict, Optional, Any
+
+from langchain.schema import Document
+from langchain.memory import ConversationBufferMemory
+
+
+
 class RAGPipelineManager:
-    """
-    A manager class for the RAG (Retrieval-Augmented Generation) pipeline.
-    """
     def __init__(
         self,
         db_path: str,
         collection_name: str = 'Book',
-        model_name: str = 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2',
+        model_name: str = 'mohamed2811/Muffakir_Embedding',
         query_transformer: QueryTransformer = None,
         llm_provider: Optional[LLMProvider] = None,
         prompt_manager: Optional[PromptManager] = None,
-        k: int = 2 ,
+        k: int = 2,
         fetch_k: int = 7,
         retrive_method: str = "max_marginal_relevance_search",
         reranker: Optional[Reranker] = None,
-        query_processor:Optional[ QueryDocumentProcessor]=None,
-        hallucination : Optional[HallucinationsCheck]=None,
-        crewagent: Optional[CrewAgents]=None,  # Web search agent
-         
+        query_processor: Optional[QueryDocumentProcessor] = None,
+        hallucination: Optional[HallucinationsCheck] = None,
+        crewagent: Optional[CrewAgents] = None,
     ):
-
         self.db_manager = ChromaDBManager(
             path=db_path,
             collection_name=collection_name,
             model_name=model_name
         )
-        from RAGGenerationPipeline import RAGGenerationPipeline
+
+
+        # NEW
+        self.memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
 
         self.query_transformer = query_transformer
-        
+
+        from RAGGenerationPipeline import RAGGenerationPipeline
         self.generation_pipeline = RAGGenerationPipeline(
             pipeline_manager=self,
             llm_provider=llm_provider,
@@ -51,8 +59,7 @@ class RAGPipelineManager:
             reranker=reranker,
             crewagent=crewagent,
             hallucination=hallucination,
-            query_processor=query_processor 
-
+            query_processor=query_processor
         )
         self.k = k
         self.fetch_k = fetch_k
@@ -60,8 +67,31 @@ class RAGPipelineManager:
         self.retriever = RetrieveMethods(self.db_manager.vector_store)
         self.llm_provider = llm_provider
         self.reranker = reranker
-        self.db_path=db_path
+        self.db_path = db_path
 
+        
+
+    def store_conversation(self, user_message: str, bot_response: str):
+        print("STORE")
+        self.memory.save_context({"input": user_message}, {"output": bot_response})
+
+    def get_chat_history(self) -> str:
+
+        messages = self.memory.load_memory_variables({}).get("chat_history", [])
+        history_text = ""
+        query= ""
+        for msg in messages:
+            if hasattr(msg, "content"):
+                if "HumanMessage" in type(msg).__name__:
+                    history_text += "المستخدم: " + msg.content + "\n"
+                    query += "المستخدم: " + msg.content + "\n"
+                elif "AIMessage" in type(msg).__name__:
+                    history_text += "المساعد: " + msg.content + "\n"
+                else:
+                    history_text += msg.content + "\n"
+            else:
+                history_text += str(msg) + "\n"
+        return query
 
 
 
@@ -69,24 +99,18 @@ class RAGPipelineManager:
         self.db_manager.add_documents(documents)
 
     def query_similar_documents(self, query: str, k: Optional[int] = None) -> Dict[str, Any]:
-        ## Optional
-        #query = self.query_transformer.transform_query(query)
-        ## class = query_classfication(query)
 
-        ## dummy llm
-        ## vb 
-        ## (agent)
- 
+
         if self.retrive_method == "max_marginal_relevance_search":
             return self.retriever.max_marginal_relevance_search(query,self.k,self.fetch_k)
 
 
         elif self.retrive_method == "similarity_search":
             return self.retriever.similarity_search(query, self.k)
-        
+
         elif self.retrive_method=="hybrid":
             return self.retriever.HybridRAG(query,self.k)
-        
+
         elif self.retrive_method =="contextual":
 
             return self.retriever.ContextualRAG(llm_provider= self.llm_provider,query=query)
@@ -96,7 +120,6 @@ class RAGPipelineManager:
 
 
     def generate_answer(self, query: str) -> Dict[str, Any]:
-        print("HELLO !!!!!!!!!!!!!!!!")
 
 
         return self.generation_pipeline.generate_response(query,type=self.retrive_method)

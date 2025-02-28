@@ -3,7 +3,7 @@ from typing import Tuple, List, Dict, Optional, Any
 
 
 class EmbeddingProvider:
-    def __init__(self, model_name: str = 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2'):
+    def __init__(self, model_name: str = 'mohamed2811/Muffakir_Embedding'):
         self.model = SentenceTransformer(model_name)
 
     def embed(self, texts: List[str]) -> List[List[float]]:

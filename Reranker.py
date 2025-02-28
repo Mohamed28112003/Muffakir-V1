@@ -9,7 +9,7 @@ class Reranker:
     def __init__(
         self, 
         embedding_provider: Optional[EmbeddingProvider] = None, 
-        model_name: str = 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2',
+        model_name: str = 'mohamed2811/Muffakir_Embedding',
         reranking_method: str = 'semantic_similarity',
         cross_encoder_model_name: Optional[str] = None
     ):
