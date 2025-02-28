@@ -70,13 +70,14 @@ class RAGGenerationPipeline:
             llm = self.llm_provider.get_llm()
             print("DUMMYYYY !!!!!!!!")
             answer = llm.invoke(full_query)
-            self.pipeline_manager.store_conversation(query, answer.content)
+            answer = self.hallucination.check_answer(answer.content)
+            self.pipeline_manager.store_conversation(query, answer)
 
 
 
             # Directly answer with LLM
             return {
-                "answer": answer.content,
+                "answer": answer,
                 "retrieved_documents": [],
                 "source_metadata": [],
             }
