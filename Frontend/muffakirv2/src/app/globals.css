@@ -1,0 +1,147 @@
+:root {
+  --primary-color: #00ff88;
+  --secondary-color: #101010ea;
+  --background-color: #f8f9fa;
+  --background-gradient: linear-gradient(135deg, #ffffff 0%, #f1f1f1 100%);
+  --text-color: #101010ea;
+  --button-hover-bg: rgba(0, 0, 0, 0.05);
+}
+
+[theme='dark'] {
+  --primary-color: #00ff88;
+  --secondary-color: #ffffff;
+  --background-color: #101010ea;
+  --background-gradient: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+  --text-color: #ffffff;
+  --button-hover-bg: rgba(255, 255, 255, 0.1);
+}
+
+body {
+  overflow: hidden;
+}
+
+.theme-toggle {
+  position: fixed;
+  top: 4.5rem;
+  left: 1.5rem;
+  background: none;
+  border: none;
+  color: var(--text-color);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.5s ease;
+}
+
+.theme-toggle:hover {
+  transform: scale(1.2);
+  background: var(--button-hover-bg);
+}
+
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+
+
+
+.language-toggle {
+  position: fixed;
+  top: 1.5rem;
+  left: 1.5rem;
+  background: none;
+  border: none;
+  color: var(--text-color);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.5s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.language-toggle:hover {
+  transform: scale(1.1);
+  background: var(--button-hover-bg);
+}
+
+/* RTL adjustments */
+[dir='rtl'] .chat-input {
+  text-align: right;
+}
+
+.title-link {
+  text-decoration: none;
+}
+
+[dir='rtl'] .title {
+  text-align: right;
+}
+
+[dir='rtl'] .button-group {
+  direction: rtl;
+}
+
+html[dir='rtl'] {
+  direction: rtl;
+}
+
+.profile {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: none;
+  border: none;
+  color: var(--text-color);
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.5s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  font-weight: 600;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: var(--background-color);
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.loading-text {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border-left-color: #09f;
+  animation: spin 1s ease infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+p {
+  margin-top: 20px;
+  font-size: 1.2em;
+}

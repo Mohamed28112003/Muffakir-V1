@@ -101,7 +101,7 @@ class RAGGenerationPipeline:
                 answer = self.hallucination.check_answer(response.content)
 
 
-                print("HERE !!!!!")
+                print("HERE NO ANSWER !!!!!")
                 self.pipeline_manager.store_conversation(query, answer)
 
 

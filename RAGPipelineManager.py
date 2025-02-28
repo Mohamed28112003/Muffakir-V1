@@ -68,8 +68,9 @@ class RAGPipelineManager:
         self.llm_provider = llm_provider
         self.reranker = reranker
         self.db_path = db_path
+        self.query_transformer =query_transformer
 
-        
+
 
     def store_conversation(self, user_message: str, bot_response: str):
         print("STORE")
@@ -120,6 +121,9 @@ class RAGPipelineManager:
 
 
     def generate_answer(self, query: str) -> Dict[str, Any]:
+
+        ## query transformer 
+        #query = self.query_transformer.transform_query(query)
 
 
         return self.generation_pipeline.generate_response(query,type=self.retrive_method)
