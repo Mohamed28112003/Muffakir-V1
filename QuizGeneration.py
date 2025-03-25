@@ -1,26 +1,18 @@
 from typing import Tuple, List, Dict, Optional, Any
-import re
 from LLMProvider import *
 from PromptManager import *
-from Reranker import *  
-from RAGPipelineManager import RAGPipelineManager
-from DocumentRetriever import *
-from AnswerGenerator import *
 from QueryDocumentProcessor import *
-from HallucinationsCheck import *
-
-from typing import Tuple, List, Dict, Any
 import re
-
+from DocumentRetriever import *
 
 
 class QuizGeneration:
 
     def __init__(self, llm_provider: LLMProvider, prompt_manager: PromptManager,
-                 pipeline_manager: RAGPipelineManager):
+                 retriever: DocumentRetriever):
 
         self.llm_provider = llm_provider
-        self.retriever = DocumentRetriever(pipeline_manager)
+        self.retriever = retriever
         self.prompt_manager = prompt_manager
         self.generation_prompt = self.prompt_manager.get_prompt("MCQ")
 
@@ -37,6 +29,9 @@ class QuizGeneration:
         # Retrieve documents
         retrieval_result = self.retriever.retrieve_documents(query, 10)
         formatted_documents = self.retriever.format_documents(retrieval_result)
+
+        print("LENGHT : ",len(formatted_documents))
+        print("lenght 2 : ",len(retrieval_result))
 
         # Initialize lists to store parsed quiz elements
         all_questions = []

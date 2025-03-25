@@ -18,3 +18,5 @@ crewai
 tavily-python
 langchain_openai
 streamlit_chat
+firecrawl
+azure-ai-formrecognizer

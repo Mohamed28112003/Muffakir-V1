@@ -1,4 +1,5 @@
 api_keys_qroq = [
+    "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",
     "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",
     "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",
     "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",
@@ -27,6 +28,8 @@ api_keys_qroq = [
 
 
 api_keys_together=[
+    "0771af569a7eff59b2256e305f9a49bf555d1389ff2832fba09f0bc2c9ced9ef",
+    "0f847184c2c2a7ca23ec49500b1cabd829912a256bf231c66e5854583886fef1",
     "d6c68edcc40871855a2bbf37f81dc05df01379c8afe835f920eac9d44bb0216f",
     "5f2166daf0d66e688e8c7b8735f9b1ea1e59c9e04c4d1c8876d24af40a944df0",
 "6622a4cb636179dc7b8835b6527818665125b1d3e4919e22eec72733bda88a46",

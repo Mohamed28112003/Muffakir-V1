@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["file://D%3A/Graduation%20Project/Local/Frontend/muffakirv2/src/app/signin/signin.css"],"sourcesContent":[""],"names":[],"mappings":""}},
-    {"offset": {"line": 2, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"A"}}]
-}

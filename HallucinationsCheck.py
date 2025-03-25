@@ -26,4 +26,4 @@ class HallucinationsCheck:
             print(f"Error transforming query: {e}")
             print("Switching API key and retrying QUERY...")
             self.llm_provider.switch_api_key()
-            return self.transform_query(answer)
+            return self.check_answer(answer)

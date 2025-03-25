@@ -1,10 +1,9 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any ,Optional
 from langchain.schema import Document
 from RAGPipelineManager import *
 
-
 class DocumentRetriever:
-    def __init__(self, pipeline_manager: RAGPipelineManager):
+    def __init__(self, pipeline_manager: Optional[RAGPipelineManager]=Any):
         self.pipeline_manager = pipeline_manager
 
     def retrieve_documents(self, query: str, k: int = 2) -> List[Dict[str, Any]]:

@@ -5,47 +5,43 @@ from langchain.schema import Document
 from ChromaDBManager import ChromaDBManager
 
 class DocumentSearchToolInput(BaseModel):
-    """Input schema for DocumentSearchTool."""
-    query: str = Field(..., description="Query to search the document.")
+    """مخطط الإدخال لأداة البحث في الوثائق."""
+    query: str = Field(..., description="استعلام للبحث في الوثيقة.")
 
 class DocumentSearchTool(BaseTool):
     name: str = "DocumentSearchTool"
-    description: str = "Search the document for the given query."
+    description: str = "البحث في الوثيقة باستخدام الاستعلام المعطى."
     args_schema: Type[BaseModel] = DocumentSearchToolInput
     model_config = ConfigDict(extra="allow")
     
     def __init__(self, db_path: str, k: int = 5):
         """
-        Initialize the searcher with ChromaDBManager.
+        تهيئة الباحث باستخدام ChromaDBManager.
         
-        :param db_path: Path to the database.
-        :param k: Number of document chunks to retrieve.
+        :param db_path: مسار قاعدة البيانات.
+        :param k: عدد أجزاء الوثيقة المراد استرجاعها.
         """
         super().__init__()
         self.db_manager = ChromaDBManager(path=db_path)
         self.k = k  
-        self._last_retrieved_docs = []
+        self._last_retrieved_docs: List[Document] = []
     
-    def _run(self, query: str) -> str:
+    def _run(self, query: str) -> List[Document]:
         """
-        Search the document using ChromaDBManager.
-        Returns a formatted string for the agent while storing the raw documents.
+        البحث في الوثيقة باستخدام ChromaDBManager.
+        يُعيد قائمة من كائنات Document المُسترجعة.
         
-        :param query: The search query.
-        :return: A string containing the formatted content of the retrieved chunks.
+        :param query: استعلام البحث.
+        :return: قائمة تحتوي على كائنات Document.
         """
-        # Use the dynamic k parameter here
         relevant_chunks = self.db_manager.similarity_search(query, k=self.k)
         if not relevant_chunks:
             self._last_retrieved_docs = []
-            return "لم يتم العثور على نتائج مطابقة في قاعدة البيانات."
+            return []
         
         self._last_retrieved_docs = relevant_chunks
-        
-        docs = [chunk.page_content for chunk in relevant_chunks]
-        separator = "\n___\n"
-        return separator.join(docs)
+        return relevant_chunks
     
     def get_last_retrieved_docs(self) -> List[Document]:
-        """Return the documents retrieved from the last search."""
+        """إرجاع الوثائق التي تم استرجاعها من آخر بحث."""
         return self._last_retrieved_docs
