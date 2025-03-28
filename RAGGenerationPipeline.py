@@ -27,6 +27,8 @@ class RAGGenerationPipeline:
         self.retriever = DocumentRetriever(pipeline_manager)
         self.generator = AnswerGenerator(llm_provider, prompt_manager)
         self.reranker = reranker or Reranker()
+        self.query_transformer = QueryTransformer(llm_provider, prompt_manager,prompt="search_query")
+
         self.hallucination = hallucination
         self.k = k
 
@@ -41,14 +43,15 @@ class RAGGenerationPipeline:
 
         print(chat_history)
 
-        print(f"input : {full_query}")
+        print(f"full_query : {full_query}")
 
 
-        query_type = "vector_db"
+        query_type = self.query_processor.classify_query(query=query)
 
-        history_type = "original"
+        history_type = self.query_processor.classify_query_with_history(chat_history,full_query)
 
         print("HISOTRY TYPE = ",history_type)
+        print("query_type = ",query_type)
 
         if history_type == "original":
 
@@ -61,7 +64,6 @@ class RAGGenerationPipeline:
 
 
 
-        db_path= self.pipeline_manager.db_path
 
         if query_type == "dummy_query":
             llm = self.llm_provider.get_llm()
@@ -94,9 +96,13 @@ class RAGGenerationPipeline:
 
             if answer in "لا يمكنني الإجابة على هذا السؤال":
                 llm = self.llm_provider.get_llm()
+                optimized_query = self.query_transformer.transform_query(query)
+
+                print("optimized_query in no answer",optimized_query)
+
 
                 
-                response = llm.invoke(full_query)
+                response = llm.invoke(optimized_query)
                 answer = self.hallucination.check_answer(response.content)
 
 
