@@ -29,7 +29,5 @@ class HallucinationsCheck:
             cleaned_response = self.clean_text(response_text)
             return cleaned_response
         except Exception as e:
-            print(f"Error transforming query: {e}")
-            print("Switching API key and retrying QUERY...")
-            self.llm_provider.switch_api_key()
-            return self.check_answer(answer)
+            print(f"Error HallucinationsCheck: {e}")
+

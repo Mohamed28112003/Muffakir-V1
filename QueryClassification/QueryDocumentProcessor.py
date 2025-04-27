@@ -20,10 +20,8 @@ class QueryDocumentProcessor:
             else:
                 return str(response).strip()
         except Exception as e:
-            print(f"Error transforming query: {e}")
-            print("Switching API key and retrying QUERY...")
-            self.llm_provider.switch_api_key()
-            return self.classify_query(query)
+            print(f"Error QueryDocumentProcessor transforming query: {e}")
+
 
     def classify_query_with_history(self, conversation_history: str, new_query: str) -> str:
 
@@ -39,8 +37,6 @@ class QueryDocumentProcessor:
             else:
                 return str(response).strip()
         except Exception as e:
-            print(f"Error classifying query with history: {e}")
-            self.llm_provider.switch_api_key()
-            return self.classify_query_with_history(conversation_history, new_query)
+            print(f"Error QueryDocumentProcessor classifying query with history: {e}")
 
 

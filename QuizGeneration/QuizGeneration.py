@@ -40,7 +40,6 @@ class QuizGeneration:
 
             except Exception as e:
                 print(f"Error generating quiz for document: {e}")
-                self.llm_provider.switch_api_key()
 
 
         cleaned_questions = [self.clean_text(q) for q in all_questions]

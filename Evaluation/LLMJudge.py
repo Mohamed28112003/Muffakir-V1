@@ -23,7 +23,5 @@ class LLMJudge:
             else:
                 return str(response)
         except Exception as e:
-            print(f"Error transforming query: {e}")
-            print("Switching API key and retrying QUERY...")
-            self.llm_provider.switch_api_key()
-            return self.check_answer_relevance(ground_truth,system_answer)
+            print(f"Error LLM Judge: {e}")
+            

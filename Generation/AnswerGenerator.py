@@ -33,5 +33,3 @@ class AnswerGenerator:
 
         except Exception as e:
             print(f"Error generating answer: {e}")
-            self.llm_provider.switch_api_key()
-            return self.generate_answer(query, documents)
