@@ -21,6 +21,6 @@ tavily-python==0.5.0
 tiktoken==0.8.0
 transformers==4.48.2
 unstructured[pdf]==0.16.17
-pydantic
-python-dotenv
-pydantic-settings
+pydantic==2.11.3
+python-dotenv== 1.0.1
+pydantic-settings==2.7.1
