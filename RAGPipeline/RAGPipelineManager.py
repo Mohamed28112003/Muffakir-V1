@@ -1,102 +1,107 @@
-
-from QueryTransformer.QueryTransformer import *
-from LLMProvider.LLMProvider import *
+from typing import List, Dict, Any, Optional
+import logging
 from langchain.schema import Document
 
-from PromptManager.PromptManager import *
-
-from VectorDB.ChromaDBManager import *
-from RAGPipeline.RetrieveMethods import  *
-
-from QueryClassification.QueryDocumentProcessor import *
-
-from Reranker.Reranker import *
-from HallucinationsCheck.HallucinationsCheck import *
-from typing import  List, Dict, Optional, Any
-
-from langchain.schema import Document
-
+from Enums import RetrievalMethod
+from LLMProvider.LLMProvider import LLMProvider
+from QueryTransformer.QueryTransformer import QueryTransformer
+from PromptManager.PromptManager import PromptManager
+from VectorDB.ChromaDBManager import ChromaDBManager
+from RAGPipeline.RetrieveMethods import RetrieveMethods
+from QueryClassification.QueryDocumentProcessor import QueryDocumentProcessor
+from HallucinationsCheck.HallucinationsCheck import HallucinationsCheck
+from Generation.RAGGenerationPipeline import RAGGenerationPipeline
 
 class RAGPipelineManager:
+    """
+    Manages the full RAG pipeline: retrieval, reranking, hallucination checking, generation.
+    """
     def __init__(
         self,
         db_path: str,
         collection_name: str = 'Book',
         model_name: str = 'mohamed2811/Muffakir_Embedding',
-        query_transformer: QueryTransformer = None,
         llm_provider: Optional[LLMProvider] = None,
+        query_transformer: Optional[QueryTransformer] = None,
         prompt_manager: Optional[PromptManager] = None,
-        k: int = 2,
-        fetch_k: int = 7,
-        retrive_method: str = "max_marginal_relevance_search",
-        reranker: Optional[Reranker] = None,
         query_processor: Optional[QueryDocumentProcessor] = None,
         hallucination: Optional[HallucinationsCheck] = None,
-       
+        k: int = 2,
+        fetch_k: int = 7,
+        retrieve_method: RetrievalMethod = RetrievalMethod.MAX_MARGINAL_RELEVANCE,
     ):
+        logging.basicConfig(level=logging.INFO)
+        self.logger = logging.getLogger(__name__)
+
+        # Core components
         self.db_manager = ChromaDBManager(
             path=db_path,
             collection_name=collection_name,
-            model_name=model_name
+            model_name=model_name,
         )
-
-
-        # NEW
-
+        self.llm_provider = llm_provider
         self.query_transformer = query_transformer
+        self.prompt_manager = prompt_manager
+        self.query_processor = query_processor
+        self.hallucination = hallucination
 
-        from Generation.RAGGenerationPipeline import RAGGenerationPipeline
-        self.generation_pipeline = RAGGenerationPipeline(
-            pipeline_manager=self,
-            llm_provider=llm_provider,
-            prompt_manager=prompt_manager,
-            reranker=reranker,
-            
-            hallucination=hallucination,
-            query_processor=query_processor
-        )
+        # RAG parameters
         self.k = k
         self.fetch_k = fetch_k
-        self.retrive_method = retrive_method
+        self.retrieve_method = retrieve_method
+
+        # Subsystems
         self.retriever = RetrieveMethods(self.db_manager.vector_store)
-        self.llm_provider = llm_provider
-        self.reranker = reranker
-        self.db_path = db_path
-        self.query_transformer =query_transformer
+        self.generation_pipeline = RAGGenerationPipeline(
+            pipeline_manager=self,
+            llm_provider=self.llm_provider,
+            prompt_manager=self.prompt_manager,
+            hallucination=self.hallucination,
+            query_processor=self.query_processor,
+        )
 
-
-
-
-    def store_documents(self, documents: List[Document]):
+    def store_documents(self, documents: List[Document]) -> None:
+        """
+        Add documents to the vector database.
+        """
         self.db_manager.add_documents(documents)
+        self.logger.info(f"Stored {len(documents)} documents successfully.")
 
-    def query_similar_documents(self, query: str, k: Optional[int] = None) -> Dict[str, Any]:
+    def query_similar_documents(
+        self,
+        query: str,
+        k: Optional[int] = None,
+        method: Optional[RetrievalMethod] = None
+    ) -> List[Document]:
+        """
+        Retrieve similar documents based on the selected retrieval strategy.
+
+        :param query: the user’s query
+        :param k: override the top-k count (defaults to self.k)
+        :param method: override the retrieval method (defaults to self.retrieve_method)
+        """
+        k = k or self.k
+        method = method or self.retrieve_method
 
 
-        if self.retrive_method == "max_marginal_relevance_search":
-            return self.retriever.max_marginal_relevance_search(query,self.k,self.fetch_k)
+        self.logger.info(f"Retrieving documents using {method.value} (k={k}) for query: {query}")
 
+        if method == RetrievalMethod.MAX_MARGINAL_RELEVANCE:
+            return self.retriever.max_marginal_relevance_search(query, k, self.fetch_k)
 
-        elif self.retrive_method == "similarity_search":
-            return self.retriever.similarity_search(query, self.k)
+        if method == RetrievalMethod.SIMILARITY_SEARCH:
+            return self.retriever.similarity_search(query, k)
 
-        elif self.retrive_method=="hybrid":
-            return self.retriever.HybridRAG(query,self.k)
+        if method == RetrievalMethod.HYBRID:
+            return self.retriever.HybridRAG(query, k)
 
-        elif self.retrive_method =="contextual":
+        if method == RetrievalMethod.CONTEXTUAL:
+            return self.retriever.ContextualRAG(llm_provider=self.llm_provider, query=query)
 
-            return self.retriever.ContextualRAG(llm_provider= self.llm_provider,query=query)
-
-        else:
-            raise ValueError(f"Unknown retrive_method: {self.retrive_method}")
-
+        raise ValueError(f"Unsupported retrieval method: {method}")
 
     def generate_answer(self, query: str) -> Dict[str, Any]:
-
-        ## query transformer 
-        #query = self.query_transformer.transform_query(query)
-
-
-        return self.generation_pipeline.generate_response(query,type=self.retrive_method)
-
-
+        """
+        Generate a final answer from retrieved documents and the generation pipeline.
+        """
+        return self.generation_pipeline.generate_response(query)
