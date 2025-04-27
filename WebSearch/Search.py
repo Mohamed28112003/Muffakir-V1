@@ -1,7 +1,7 @@
-from LLMProvider import *
-from PromptManager import *
+from LLMProvider.LLMProvider import *
+from PromptManager.PromptManager import *
 from firecrawl import FirecrawlApp
-from QueryTransformer import *
+from QueryTransformer.QueryTransformer import *
 
 class Search:
 

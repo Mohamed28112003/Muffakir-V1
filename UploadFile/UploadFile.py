@@ -1,13 +1,15 @@
-from ArabicBookProcessor import *
-from RAGPipelineManager import *
-from ChromaDBManager import *
+from TextProcessor.ArabicBookProcessor import *
+from RAGPipeline.RAGPipelineManager import *
+from VectorDB.ChromaDBManager import *
 from azure.ai.formrecognizer import DocumentAnalysisClient
 from azure.core.credentials import AzureKeyCredential
+from dotenv import load_dotenv
 import os
+load_dotenv()
 
 
-new_db_path = r"D:\Graduation Project\Local\upload"
-output_dir = r"D:\Graduation Project\Local\TXT"  
+new_db_path = os.getenv("NEW_DB_PATH")
+output_dir = os.getenv("OUTPUT_DIR")  
 
 class UploadFile:
     def __init__(self, path: str, model_name: str = 'mohamed2811/Muffakir_Embedding'):
@@ -32,16 +34,14 @@ class UploadFile:
     @staticmethod
     def analyze_document(file_path):
         endpoint = "https://documentsfree.cognitiveservices.azure.com/"
-        api_key = "8ec69b60270f4900b487ab5eabf265ac"
+        api_key = os.getenv("AZURE_API_KEY")
 
         document_analysis_client = DocumentAnalysisClient(
             endpoint=endpoint,
             credential=AzureKeyCredential(api_key)
         )
-        # Create output directory if it doesn't exist
         os.makedirs(output_dir, exist_ok=True)
         
-        # Extract base name and construct new output path
         base_name = os.path.splitext(os.path.basename(file_path))[0]
         output_file = os.path.join(output_dir, base_name + "_extracted.txt")
 

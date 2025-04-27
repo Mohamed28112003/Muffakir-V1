@@ -1,5 +1,5 @@
-from PromptManager import *
-from LLMProvider import *
+from PromptManager.PromptManager import *
+from LLMProvider.LLMProvider import *
 
 class QueryDocumentProcessor:
     def __init__(self, llm_provider: LLMProvider, prompt_manager: PromptManager):

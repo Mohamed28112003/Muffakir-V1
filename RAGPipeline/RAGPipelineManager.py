@@ -1,21 +1,20 @@
 
-from QueryTransformer import *
-from LLMProvider import *
+from QueryTransformer.QueryTransformer import *
+from LLMProvider.LLMProvider import *
 from langchain.schema import Document
 
-from PromptManager import *
+from PromptManager.PromptManager import *
 
-from ChromaDBManager import *
-from RetrieveMethods import  *
+from VectorDB.ChromaDBManager import *
+from RAGPipeline.RetrieveMethods import  *
 
-from QueryDocumentProcessor import *
+from QueryClassification.QueryDocumentProcessor import *
 
-from Reranker import *
-from HallucinationsCheck import *
-from typing import Tuple, List, Dict, Optional, Any
+from Reranker.Reranker import *
+from HallucinationsCheck.HallucinationsCheck import *
+from typing import  List, Dict, Optional, Any
 
 from langchain.schema import Document
-from langchain.memory import ConversationBufferMemory
 
 
 class RAGPipelineManager:
@@ -43,11 +42,10 @@ class RAGPipelineManager:
 
 
         # NEW
-        self.memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
 
         self.query_transformer = query_transformer
 
-        from RAGGenerationPipeline import RAGGenerationPipeline
+        from Generation.RAGGenerationPipeline import RAGGenerationPipeline
         self.generation_pipeline = RAGGenerationPipeline(
             pipeline_manager=self,
             llm_provider=llm_provider,
@@ -66,29 +64,6 @@ class RAGPipelineManager:
         self.db_path = db_path
         self.query_transformer =query_transformer
 
-
-
-    def store_conversation(self, user_message: str, bot_response: str):
-        print("STORE")
-        self.memory.save_context({"input": user_message}, {"output": bot_response})
-
-    def get_chat_history(self) -> str:
-
-        messages = self.memory.load_memory_variables({}).get("chat_history", [])
-        history_text = ""
-        query= ""
-        for msg in messages:
-            if hasattr(msg, "content"):
-                if "HumanMessage" in type(msg).__name__:
-                    history_text += "المستخدم: " + msg.content + "\n"
-                    query += "المستخدم: " + msg.content + "\n"
-                elif "AIMessage" in type(msg).__name__:
-                    history_text += "المساعد: " + msg.content + "\n"
-                else:
-                    history_text += msg.content + "\n"
-            else:
-                history_text += str(msg) + "\n"
-        return query
 
 
 

@@ -1,9 +1,9 @@
 
 from typing import Tuple, List, Dict, Optional, Any
-from LLMProvider import *
+from LLMProvider.LLMProvider import *
 from langchain.schema import Document
 
-from PromptManager import *
+from PromptManager.PromptManager import *
 
 
 class AnswerGenerator:

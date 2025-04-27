@@ -4,7 +4,7 @@ from langchain_openai import ChatOpenAI
 
 
 class LLMProvider:
-    def __init__(self, api_keys: List[str], provider_name: str, model: str, temperature: float = 0.5, max_tokens: int = 300):
+    def __init__(self, api_keys: str, provider_name: str, model: str, temperature: float = 0.5, max_tokens: int = 300):
         self.api_keys = api_keys
         self.api_key_index = 0
         self.model = model
@@ -17,14 +17,14 @@ class LLMProvider:
     def initialize_llm(self):
         if self.provider_name == "groq":
             return ChatGroq(
-                api_key=self.api_keys[self.api_key_index],
+                api_key=self.api_keys,
                 model=self.model,
                 temperature=self.temperature,
                 max_tokens=self.max_tokens
             )
         elif self.provider_name == "together":
             return ChatOpenAI(
-                openai_api_key=self.api_keys[self.api_key_index],
+                openai_api_key=self.api_keys,
                 model=self.model,
                 temperature=self.temperature,
                 max_tokens=self.max_tokens,
@@ -32,7 +32,7 @@ class LLMProvider:
             )
         elif self.provider_name == "openrouter":
             return ChatOpenAI(
-                openai_api_key=self.api_keys[self.api_key_index],
+                openai_api_key=self.api_keys,
                 model=self.model,
                 temperature=self.temperature,
                 max_tokens=self.max_tokens,

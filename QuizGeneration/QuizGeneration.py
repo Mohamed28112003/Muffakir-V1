@@ -1,9 +1,9 @@
 from typing import Tuple, List, Dict, Any
-from LLMProvider import *
-from PromptManager import *
-from QueryDocumentProcessor import *
+from LLMProvider.LLMProvider import *
+from PromptManager.PromptManager import *
+from QueryClassification.QueryDocumentProcessor import *
 import re
-from DocumentRetriever import *
+from Generation.DocumentRetriever import *
 
 
 class QuizGeneration:

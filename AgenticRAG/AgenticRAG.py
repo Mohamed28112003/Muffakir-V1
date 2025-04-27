@@ -1,5 +1,5 @@
 from crewai import Agent, Task, Crew, Process, LLM
-from DocumentSearchTool import DocumentSearchTool  
+from AgenticRAG.DocumentSearchTool import DocumentSearchTool  
 from typing import Tuple, Dict, Any
 
 class AgenticRag:

@@ -1,5 +1,5 @@
 from sentence_transformers import SentenceTransformer
-from typing import Tuple, List, Dict, Optional, Any
+from typing import  List
 
 
 class EmbeddingProvider:

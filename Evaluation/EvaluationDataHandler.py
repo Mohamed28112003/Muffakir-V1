@@ -5,9 +5,9 @@ import numpy as np
 from tqdm import tqdm
 from pathlib import Path
 from typing import List, Dict
-from LLMProvider import LLMProvider
-from ChromaDBManager import ChromaDBManager
-from PromptManager import PromptManager
+from LLMProvider.LLMProvider import LLMProvider
+from VectorDB.ChromaDBManager import ChromaDBManager
+from PromptManager.PromptManager import PromptManager
 from sklearn.metrics.pairwise import cosine_similarity
 
 class EvaluationDataHandler:

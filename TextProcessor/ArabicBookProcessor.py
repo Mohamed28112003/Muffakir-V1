@@ -1,11 +1,10 @@
 from langchain.document_loaders import DirectoryLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema import Document
 import re
-from typing import List, Dict
+from typing import List
 import os
 
-from TextProcessor import *
+from TextProcessor.TextProcessor import *
 
 class ArabicBookProcessor:
     def __init__(self, directory_path: str):

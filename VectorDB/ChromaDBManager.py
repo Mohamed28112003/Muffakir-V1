@@ -1,4 +1,4 @@
-from EmbeddingProvider import   *
+from Embedding.EmbeddingProvider import   *
 from langchain.vectorstores import Chroma
 from langchain.schema import Document
 from typing import Tuple, List, Dict, Optional, Any

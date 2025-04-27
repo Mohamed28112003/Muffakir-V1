@@ -2,7 +2,7 @@ from crewai.tools import BaseTool
 from typing import Type, List
 from pydantic import BaseModel, Field, ConfigDict
 from langchain.schema import Document
-from ChromaDBManager import ChromaDBManager
+from VectorDB.ChromaDBManager import ChromaDBManager
 
 class DocumentSearchToolInput(BaseModel):
     """مخطط الإدخال لأداة البحث في الوثائق."""

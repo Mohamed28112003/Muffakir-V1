@@ -1,6 +1,6 @@
 from typing import List, Dict, Any ,Optional
 from langchain.schema import Document
-from RAGPipelineManager import *
+from RAGPipeline.RAGPipelineManager import *
 
 class DocumentRetriever:
     def __init__(self, pipeline_manager: Optional[RAGPipelineManager]=Any):
