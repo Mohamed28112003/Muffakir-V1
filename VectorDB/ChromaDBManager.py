@@ -1,7 +1,8 @@
 from Embedding.EmbeddingProvider import   *
-from langchain.vectorstores import Chroma
+from langchain_community.vectorstores import Chroma
+
 from langchain.schema import Document
-from typing import Tuple, List, Dict, Optional, Any
+from typing import List
 
 class ChromaDBManager:
     def __init__(self, path: str, collection_name: str = 'Book',

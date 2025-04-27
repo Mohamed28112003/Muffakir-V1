@@ -2,15 +2,14 @@
 import os
 from Generation.DocumentRetriever import DocumentRetriever
 from RAGPipeline.RAGPipelineManager import RAGPipelineManager
-from RAGPipeline.RetrieveMethods import QueryDocumentProcessor
+from QueryClassification.QueryDocumentProcessor import QueryDocumentProcessor
 from WebSearch.Search import Search
 from QuizGeneration.QuizGeneration import QuizGeneration
-from Embedding.EmbeddingProvider import * 
+from Embedding.EmbeddingProvider import EmbeddingProvider
 from LLMProvider.LLMProvider import LLMProvider
 from PromptManager.PromptManager import PromptManager
 from QueryTransformer.QueryTransformer import QueryTransformer
 from HallucinationsCheck.HallucinationsCheck import HallucinationsCheck
-from api_keys import api_keys_together
 from dotenv import load_dotenv
 load_dotenv()
 DEFAULT_DB_PATH = os.getenv("DB_PATH")
@@ -20,7 +19,7 @@ OUTPUT_DIR = os.getenv("OUTPUT_DIR")
 _PROVIDER_NAME = "together"
 _MODEL_NAME = os.getenv("LLM_MODEL_NAME")
 _TEMPERATURE = 0
-_API_KEYS = api_keys_together
+_API_KEYS = os.getenv("TOGETHER_API_KEY")
 
 _llm_provider = LLMProvider(
     provider_name=_PROVIDER_NAME,
