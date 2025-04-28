@@ -19,6 +19,8 @@ from PromptManager.PromptManager import PromptManager
 from QueryTransformer.QueryTransformer import QueryTransformer
 from HallucinationsCheck.HallucinationsCheck import HallucinationsCheck
 from YoutubeSearch.YoutubeSearch import YoutubeSearch
+from MindMap.MindMap import MindMap
+
 _llm_provider = LLMProvider(
     api_key=settings.TOGETHER_API_KEY,
     provider=settings.PROVIDER_NAME,
@@ -109,6 +111,14 @@ def initialize_youtube_search() -> YoutubeSearch:
 
     return YoutubeSearch(
         api_key=settings.FIRE_CRAWL_API,
+        llm_provider=_llm_provider,
+        prompt_manager=_prompt_manager,
+    )
+
+
+
+def initialize_mindmap() -> MindMap:
+    return MindMap(
         llm_provider=_llm_provider,
         prompt_manager=_prompt_manager,
     )
