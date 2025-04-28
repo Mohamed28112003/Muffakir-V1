@@ -1,6 +1,4 @@
-# Search.py
-
-from typing import List, Dict, Any, Optional, Callable
+from typing import List, Dict, Any
 import logging
 
 from firecrawl import FirecrawlApp
@@ -9,47 +7,44 @@ from PromptManager.PromptManager import PromptManager
 from QueryTransformer.QueryTransformer import QueryTransformer
 from Generation.AnswerGenerator import AnswerGenerator
 
-
 class Search:
-
     def __init__(
         self,
         api_key: str,
         llm_provider: LLMProvider,
         prompt_manager: PromptManager,
-        params: Dict[str, Any],
-        firecrawl_app_factory: Optional[Callable[[str], FirecrawlApp]] = None,
+        max_depth: int = 2,
+        time_limit: int = 30,
+        max_urls: int = 5,
     ):
-
         self.logger = logging.getLogger(__name__)
-        self.params = params
         self.llm_provider = llm_provider
         self.prompt_manager = prompt_manager
+        self.max_depth = max_depth
+        self.time_limit = time_limit
+        self.max_urls = max_urls
 
-        if firecrawl_app_factory:
-            self.firecrawl = firecrawl_app_factory(api_key)
-        else:
-            self.firecrawl = FirecrawlApp(api_key=api_key)
-
+        self.firecrawl = FirecrawlApp(api_key=api_key)
         self.query_transformer = QueryTransformer(
             llm_provider=llm_provider,
             prompt_manager=prompt_manager,
             prompt="search_query"
         )
-
         self.generator = AnswerGenerator(
             llm_provider=llm_provider,
             prompt_manager=prompt_manager
         )
 
     def deep_search(self, original_query: str) -> Dict[str, Any]:
-
         optimized = self.query_transformer.transform_query(original_query)
         self.logger.info(f"DeepSearch – optimized query: {optimized!r}")
+
         try:
             results = self.firecrawl.deep_research(
                 query=optimized,
-                params=self.params
+                max_depth=self.max_depth,
+                time_limit=self.time_limit,
+                max_urls=self.max_urls,
             )
             return results
         except Exception as e:
@@ -57,7 +52,6 @@ class Search:
             raise
 
     def get_sources(self, deep_search_result: Dict[str, Any]) -> List[Dict[str, str]]:
-
         raw = deep_search_result.get("data", {}).get("sources", [])
         sources: List[Dict[str, str]] = []
         for s in raw:
@@ -69,11 +63,7 @@ class Search:
         return sources
 
     def search(self, original_query: str) -> Dict[str, Any]:
-        """
-        1) deep_search → 2) extract finalAnalysis → 3) generate answer → 4) return answer + sources
-        """
         raw = self.deep_search(original_query)
-
         analysis = raw.get("data", {}).get("finalAnalysis", "")
         sources = self.get_sources(raw)
 
