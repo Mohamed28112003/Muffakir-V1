@@ -7,7 +7,7 @@ load_dotenv()
 
 from config import settings
 from Enums import ProviderName, RetrievalMethod
-
+from Summary.Summary import Summarizer
 from Generation.DocumentRetriever import DocumentRetriever
 from RAGPipeline.RAGPipelineManager import RAGPipelineManager
 from QueryClassification.QueryDocumentProcessor import QueryDocumentProcessor
@@ -34,7 +34,7 @@ _prompt_manager = PromptManager()
 # shared EmbeddingProvider (if you need it elsewhere)
 _embedding_provider = EmbeddingProvider(
     model_name=settings.EMBEDDING_MODEL_NAME,
-    batch_size=32,
+    batch_size=16,
 )
 
 
@@ -121,4 +121,26 @@ def initialize_mindmap() -> MindMap:
     return MindMap(
         llm_provider=_llm_provider,
         prompt_manager=_prompt_manager,
+    )
+
+
+
+
+def initialize_summarizer(
+    max_chunk_limit: int =300,
+) -> Summarizer:
+    """
+    Initialize and return a Summarizer instance with shared components.
+    
+    Args:
+        max_chunk_limit: Maximum chunk limit for document processing
+        
+    Returns:
+        Initialized Summarizer instance
+    """
+    return Summarizer(
+        llm_provider=_llm_provider,
+        embedding_provider=_embedding_provider,
+        prompt_manager=_prompt_manager,
+        max_chunk_limit=max_chunk_limit,
     )

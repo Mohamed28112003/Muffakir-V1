@@ -5,8 +5,9 @@ import json
 import os
 import asyncio
 from functools import lru_cache
+from langchain.embeddings.base import Embeddings  # Import the base Embeddings class
 
-class EmbeddingProvider:
+class EmbeddingProvider(Embeddings):  # Inherit from LangChain's Embeddings
     def __init__(self, model_name: str = 'mohamed2811/Muffakir_Embedding', 
                  cache_dir: str = '.embedding_cache',
                  batch_size: int = 32):
@@ -57,7 +58,6 @@ class EmbeddingProvider:
         if cached:
             return cached
         
-
         embedding = self.model.encode(text).tolist()
         self._save_to_cache(text, embedding)
         return embedding
@@ -95,10 +95,11 @@ class EmbeddingProvider:
         loop = asyncio.get_event_loop()
         return await loop.run_in_executor(None, self.embed, texts)
     
+    # Required LangChain Embeddings interface methods
     def embed_documents(self, texts: List[str]) -> List[List[float]]:
-        """Required by LangChain's Chroma integration"""
+        """Embed documents using the underlying model"""
         return self.embed(texts)
     
-    def embed_query(self, query: str) -> List[float]:
-        """Required for processing queries in LangChain"""
-        return self.embed_single(query)
+    def embed_query(self, text: str) -> List[float]:
+        """Embed a query using the underlying model"""
+        return self.embed_single(text)

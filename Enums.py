@@ -4,6 +4,8 @@ from enum import Enum, unique
 class QueryType(Enum):
     VECTOR_DB = "vector_db"
     DUMMY_QUERY = "dummy_query"
+    HiSTORY_QUERY = "history"
+    ORIGINAL_QUERY = "original"
 
 
 @unique
@@ -19,3 +21,10 @@ class RetrievalMethod(Enum):
     SIMILARITY_SEARCH = "similarity_search"
     HYBRID = "hybrid"
     CONTEXTUAL = "contextual"
+
+
+@unique
+class SummaryStrategy(Enum):
+    DIRECT = "direct"
+    CLUSTERING = "clustering"
+    AUTO = "auto"
